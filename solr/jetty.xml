@@ -120,6 +120,20 @@
       </New>
     </Set>
 
+    <!--
+    <Get id="oldhandler" name="handler" />
+    <Set name="handler">
+        <New class="org.eclipse.jetty.server.handler.IPAccessHandler">
+            <Set name="handler"><Ref id="oldhandler"/></Set>
+            <Set name="white">
+                <Array type="java.lang.String">
+                    <Item>127.0.0.1</Item>
+                </Array>
+            </Set>
+        </New>
+    </Set>
+    -->
+
     <!-- =========================================================== -->
     <!-- extra server options                                        -->
     <!-- =========================================================== -->
