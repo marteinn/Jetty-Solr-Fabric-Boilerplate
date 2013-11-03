@@ -29,6 +29,8 @@ def install_server():
     _install_jetty(app_dir)
     _install_solr(app_dir)
 
+    _create_solr_passwd("admin", "mysecretpassword")
+
     restart_jetty()
 
     _install_solr_core(name="mycore",
@@ -145,4 +147,21 @@ def _install_solr_core(name, schema):
         '&schema=schema.xml&'\
         'dataDir=data"'
         % {"name": name})
+
+def _create_solr_passwd(username, password, update=False):
+    """
+    Installs apache2 utils then uses htpasswd to generate a password file
+    (in /opt/solr). Use this with for instance Nginx to secure admin.
+    :param username:
+    :param password:
+    :param update:
+    :return
+    """
+
+    fabtools.require.deb.packages([
+        "apache2-utils"
+    ], update=update)
+
+    with cd("/opt/solr"):
+        run("htpasswd -cmb .htpasswd %s %s" % (username, password))
 
