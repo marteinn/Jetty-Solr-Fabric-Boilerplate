@@ -165,6 +165,15 @@ def _create_solr_passwd(username, password, update=False):
     with cd("/opt/solr"):
         run("htpasswd -cmb .htpasswd %s %s" % (username, password))
 
+def _reload_solr_core(core):
+    """
+    Reloads solr core.
+    :param name:
+    :return:
+    """
+
+    run("http://localhost:8080/solr/admin/cores?action=RELOAD&core=%s" % (core,))
+
 def _clear_solr_core(core):
     """
     Removes all data from solr core.
@@ -174,5 +183,5 @@ def _clear_solr_core(core):
 
     run("http://localhost:8080/solr/%s/update\
         ?stream.body=\<delete><query>*:*</query></delete>\
-        &commit=true" % (name,)
+        &commit=true" % (core,)
 
