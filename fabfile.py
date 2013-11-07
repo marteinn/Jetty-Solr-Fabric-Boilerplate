@@ -5,36 +5,42 @@ __author__ = 'martinsandstrom'
 
 
 # Environments
-"""
+
 @task
 def prod():
-    pass
+    # Example: (absolute path of this repro)
+    env.app_dir = "/home/ubunut/myapp"
+
+    # Example: name of your solr core.
+    env.solr_core = "mycore"
 
 @task
 def deploy():
-    pass
-"""
+    """
+    Put your fancy git(?) based deploy scripts here.
+    """
+
+    _update_solr_schema(core=env.solr_core,
+                        schema="%s/solr/schema.xml" % (env.app_dir,))
+
 
 @task
 def install_server():
-    # Example: (absolute path of this repro)
-    app_dir = "/home/ubunut/myapp"
-
     """
     Put your server installation parts here.
     """
 
     # Install java, jetty, solr and register solr core.
     _install_java(update=False)
-    _install_jetty(app_dir)
-    _install_solr(app_dir)
+    _install_jetty(env.app_dir)
+    _install_solr(env.app_dir)
 
     _create_solr_passwd("admin", "mysecretpassword")
 
     restart_jetty()
 
-    _install_solr_core(name="mycore",
-                        schema="%s/solr/schema.xml" % (app_dir,))
+    _install_solr_core(core=env.solr_core,
+                        schema="%s/solr/schema.xml" % (env.app_dir,))
 
 @task
 def restart_jetty():
@@ -123,30 +129,30 @@ def _install_solr(app_dir, tmp_dir = "/tmp"):
 
     run("chown -R jetty:jetty /opt/solr")
 
-def _install_solr_core(name, schema):
+def _install_solr_core(core, schema):
     """
     Creates a new core based on collection1 and uses the api to register it.
-    :param name:
+    :param core:
     :param schema:
     :return:
     """
 
-    run("cp -a /opt/solr/collection1 /opt/solr/%s" % (name,))
-    run("rm /opt/solr/%s/core.properties" % (name,))
-    run("rm -rf /opt/solr/%s/data" % (name,))
+    run("cp -a /opt/solr/collection1 /opt/solr/%s" % (core,))
+    run("rm /opt/solr/%s/core.properties" % (core,))
+    run("rm -rf /opt/solr/%s/data" % (core,))
 
     # Copy the schema from ./solr the core you just created
-    run("cp -f %s /opt/solr/%s/conf/schema.xml" % (schema, name))
+    run("cp -f %s /opt/solr/%s/conf/schema.xml" % (schema, core))
     # You can extend this to include synonyms.txt, stopwords.txt etc.
 
     # Register core with solr (make sure Jetty is running!)
     run('curl "http://localhost:8080/solr/admin/cores?action=CREATE'\
-        '&name=%(name)s'\
-        '&instanceDir=%(name)s'\
+        '&name=%(core)s'\
+        '&instanceDir=%(core)s'\
         '&config=solrconfig.xml'\
         '&schema=schema.xml&'\
         'dataDir=data"'
-        % {"name": name})
+        % {"core": core})
 
 def _create_solr_passwd(username, password, update=False):
     """
@@ -184,4 +190,21 @@ def _clear_solr_core(core):
     run("http://localhost:8080/solr/%s/update\
         ?stream.body=\<delete><query>*:*</query></delete>\
         &commit=true" % (core,)
+
+def _update_solr_schema(core, schema, clear=False):
+    """
+    Updates schema file and updates core, and optionally clears data.
+    :param core:
+    :param schema:
+    :param clear:
+    :return:
+    """
+
+    if clear:
+        _clear_solr_core(core)
+
+    # Copy schema
+    run("cp -f %s /opt/solr/%s/conf/schema.xml" % (schema, core))
+
+    _reload_solr_core(core)
 
