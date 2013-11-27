@@ -24,6 +24,8 @@ def deploy():
                         schema="%s/solr/schema.xml" % (env.app_dir,))
 
 
+# Commands
+
 @task
 def install_server():
     """
@@ -45,6 +47,9 @@ def install_server():
 @task
 def restart_jetty():
     sudo("service jetty restart")
+
+
+# Private methods
 
 def _install_java(update=False):
     """
@@ -145,6 +150,8 @@ def _install_solr_core(core, schema):
     run("cp -f %s /opt/solr/%s/conf/schema.xml" % (schema, core))
     # You can extend this to include synonyms.txt, stopwords.txt etc.
 
+    _update_solr_config(core=core)
+
     # Register core with solr (make sure Jetty is running!)
     run('curl "http://localhost:8080/solr/admin/cores?action=CREATE'\
         '&name=%(core)s'\
@@ -190,6 +197,20 @@ def _clear_solr_core(core):
     run("http://localhost:8080/solr/%s/update\
         ?stream.body=\<delete><query>*:*</query></delete>\
         &commit=true" % (core,)
+
+def _update_solr_config(core):
+    """
+    Copies search config files from solr into core.
+    :param core:
+    :return:
+    """
+
+    files = ("protwords.txt", "spellings.txt", "stopwords.txt", "synonyms.txt")
+
+    for config_file in files:
+        file_path = "%s/solr/%s" % (env.app_dir, config_file))
+        run("cp -f %s /opt/solr/%s/conf/%(file)s" % (file_path, core,
+                                                    config_file))
 
 def _update_solr_schema(core, schema, clear=False):
     """
