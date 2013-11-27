@@ -47,6 +47,10 @@ When you're done, just open up yourdomain.com/solr/ and provide the login you ju
 
 Fabric and Fabtools.
 
+### TODO
+
+* Add cleanup commands for downloaded content
+* Add more security examples (think firewall/linux)
 
 ### Credits
 
