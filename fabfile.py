@@ -78,14 +78,14 @@ def _install_jetty(app_dir, tmp_dir = "/tmp"):
     run("mkdir -p %s" % (tmp_dir,))
 
     # You might need to update this to something closer to home.
-    jetty_src = "http://ftp.heanet.ie/pub/eclipse//jetty/stable-9/dist/"\
-                "jetty-distribution-9.0.6.v20130930.tar.gz"
+    jetty_src = "http://ftp.linux.org.tr/eclipse//jetty/stable-9/dist/" \
+                "jetty-distribution-9.1.0.v20131115.tar.gz"
 
     with cd(tmp_dir):
         run("wget %s" % (jetty_src,))
-        run("tar zxvf jetty-distribution-9.0.6.v20130930.tar.gz -C /opt")
+        run("tar zxvf jetty-distribution-9.1.0.v20131115.tar.gz -C /opt")
 
-    run("mv /opt/jetty-distribution-9.0.6.v20130930/ /opt/jetty/")
+    run("mv /opt/jetty-distribution-9.1.0.v20131115/ /opt/jetty/")
     run('echo "export JETTY_HOME=/opt/jetty/" >> ~/.profile')
     run("useradd jetty -U -s /bin/false")
     run("chown -R jetty:jetty /opt/jetty")
