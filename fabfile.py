@@ -196,7 +196,7 @@ def _clear_solr_core(core):
 
     run("http://localhost:8080/solr/%s/update\
         ?stream.body=\<delete><query>*:*</query></delete>\
-        &commit=true" % (core,)
+        &commit=true" % (core,))
 
 def _update_solr_config(core):
     """
