@@ -208,7 +208,7 @@ def _update_solr_config(core):
     files = ("protwords.txt", "spellings.txt", "stopwords.txt", "synonyms.txt")
 
     for config_file in files:
-        file_path = "%s/solr/%s" % (env.app_dir, config_file))
+        file_path = "%s/solr/%s" % (env.app_dir, config_file)
         run("cp -f %s /opt/solr/%s/conf/%(file)s" % (file_path, core,
                                                     config_file))
 
