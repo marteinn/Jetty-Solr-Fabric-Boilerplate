@@ -185,7 +185,7 @@ def _reload_solr_core(core):
     :return:
     """
 
-    run("http://localhost:8080/solr/admin/cores?action=RELOAD&core=%s" % (core,))
+    run('curl "http://localhost:8080/solr/admin/cores?action=RELOAD&core=%s"' % (core,))
 
 def _clear_solr_core(core):
     """
@@ -194,9 +194,9 @@ def _clear_solr_core(core):
     :return:
     """
 
-    run("http://localhost:8080/solr/%s/update\
+    run('curl "http://localhost:8080/solr/%s/update\
         ?stream.body=\<delete><query>*:*</query></delete>\
-        &commit=true" % (core,))
+        &commit=true"' % (core,))
 
 def _update_solr_config(core):
     """
