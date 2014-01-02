@@ -209,7 +209,7 @@ def _update_solr_config(core):
 
     for config_file in files:
         file_path = "%s/solr/%s" % (env.app_dir, config_file)
-        run("cp -f %s /opt/solr/%s/conf/%(file)s" % (file_path, core,
+        run("cp -f %s /opt/solr/%s/conf/%s" % (file_path, core,
                                                     config_file))
 
 def _update_solr_schema(core, schema, clear=False):
