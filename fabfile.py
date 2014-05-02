@@ -14,6 +14,7 @@ def prod():
     # Example: name of your solr core.
     env.solr_core = "mycore"
 
+
 @task
 def deploy():
     """
@@ -42,7 +43,8 @@ def install_server():
     restart_jetty()
 
     _install_solr_core(core=env.solr_core,
-                        schema="%s/solr/schema.xml" % (env.app_dir,))
+                       schema="%s/solr/schema.xml" % (env.app_dir,))
+
 
 @task
 def restart_jetty():
@@ -66,7 +68,8 @@ def _install_java(update=False):
     run("ln -s /usr/lib/jvm/java-7-openjdk-i386 /usr/java/default")
     run('echo "export JAVA_HOME=/usr/java/default" >> ~/.profile')
 
-def _install_jetty(app_dir, tmp_dir = "/tmp"):
+
+def _install_jetty(app_dir, tmp_dir="/tmp"):
     """
     Installs jetty with setting files jetty and jetty.xml (found in this repros
     ./solr) in /opt/jetty and creates env var JETTY_HOME.
@@ -95,7 +98,8 @@ def _install_jetty(app_dir, tmp_dir = "/tmp"):
     run("cp %s/solr/jetty.xml /opt/jetty/etc/jetty.xml" % (app_dir,))
     run("update-rc.d jetty defaults")
 
-def _install_solr(app_dir, tmp_dir = "/tmp"):
+
+def _install_solr(app_dir, tmp_dir="/tmp"):
     """
     Installs solr in /opt/solr and updates the config file in /collection1
     based upon solrconfig.xml in this repros solr/.
@@ -119,20 +123,21 @@ def _install_solr(app_dir, tmp_dir = "/tmp"):
         run("cp -a solr-4.5.1/dist /opt/solr")
         run("cp -a solr-4.5.1/contrib /opt/solr")
 
-        run("cp -a solr-4.5.1/example/contexts/solr-jetty-context.xml "\
+        run("cp -a solr-4.5.1/example/contexts/solr-jetty-context.xml "
             "/opt/jetty/webapps/solr.xml")
         run("cp -a solr-4.5.1/example/lib/ext/* /opt/jetty/lib/ext/")
 
-    run('echo JAVA_OPTIONS="-Dsolr.solr.home=/opt/solr '\
+    run('echo JAVA_OPTIONS="-Dsolr.solr.home=/opt/solr '
         '$JAVA_OPTIONS" >> /etc/default/jetty')
 
-    run("mv /opt/solr/collection1/conf/solrconfig.xml "\
+    run("mv /opt/solr/collection1/conf/solrconfig.xml "
         "/opt/solr/collection1/conf/solrconfig.xml.backup")
 
     run("cp %s/solr/solrconfig.xml /opt/solr/collection1/conf/solrconfig.xml"
         % (app_dir, ))
 
     run("chown -R jetty:jetty /opt/solr")
+
 
 def _install_solr_core(core, schema):
     """
@@ -153,13 +158,14 @@ def _install_solr_core(core, schema):
     _update_solr_config(core=core)
 
     # Register core with solr (make sure Jetty is running!)
-    run('curl "http://localhost:8080/solr/admin/cores?action=CREATE'\
-        '&name=%(core)s'\
-        '&instanceDir=%(core)s'\
-        '&config=solrconfig.xml'\
-        '&schema=schema.xml&'\
+    run('curl "http://localhost:8080/solr/admin/cores?action=CREATE'
+        '&name=%(core)s'
+        '&instanceDir=%(core)s'
+        '&config=solrconfig.xml'
+        '&schema=schema.xml&'
         'dataDir=data"'
         % {"core": core})
+
 
 def _create_solr_passwd(username, password, update=False):
     """
@@ -178,25 +184,29 @@ def _create_solr_passwd(username, password, update=False):
     with cd("/opt/solr"):
         run("htpasswd -cmb .htpasswd %s %s" % (username, password))
 
+
 def _reload_solr_core(core):
     """
     Reloads solr core.
-    :param name:
+    :param core:
     :return:
     """
 
-    run('curl "http://localhost:8080/solr/admin/cores?action=RELOAD&core=%s"' % (core,))
+    run('curl "http://localhost:8080/solr/admin/cores?action=RELOAD&core=%s"' %
+        (core,))
+
 
 def _clear_solr_core(core):
     """
     Removes all data from solr core.
-    :param name:
+    :param core:
     :return:
     """
 
     run('curl "http://localhost:8080/solr/%s/update\
         ?stream.body=\<delete><query>*:*</query></delete>\
         &commit=true"' % (core,))
+
 
 def _update_solr_config(core):
     """
@@ -210,7 +220,8 @@ def _update_solr_config(core):
     for config_file in files:
         file_path = "%s/solr/%s" % (env.app_dir, config_file)
         run("cp -f %s /opt/solr/%s/conf/%s" % (file_path, core,
-                                                    config_file))
+                                               config_file))
+
 
 def _update_solr_schema(core, schema, clear=False):
     """
@@ -228,4 +239,3 @@ def _update_solr_schema(core, schema, clear=False):
     run("cp -f %s /opt/solr/%s/conf/schema.xml" % (schema, core))
 
     _reload_solr_core(core)
-
